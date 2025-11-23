@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Petitions</title>
+</head>
+<body>
+<h1>All Petitions</h1>
+<ul id="petition-list"></ul>
+
+<script>
+    fetch('/petitions')
+        .then(response => response.json())
+        .then(data => {
+            const list = document.getElementById('petition-list');
+            data.forEach(p => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="petition.html?id=${p.id}">${p.title}</a>`;
+                list.appendChild(li);
+            });
+        });
+</script>
+
+<a href="create.html">Create a New Petition</a><br>
+<a href="search.html">Search Petition</a>
+</body>
+</html>
