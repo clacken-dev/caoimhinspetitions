@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/yourusername/caoimhinspetitions.git'
+                git branch: 'main', url: 'https://github.com/clacken-dev/caoimhinspetitions.git'
             }
         }
 
