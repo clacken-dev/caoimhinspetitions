@@ -48,7 +48,8 @@ pipeline {
 
                         # Start app fully detached
                         cd /var/lib/jenkins/deploy
-                        setsid java -jar caoimhinspetitions.war > /dev/null 2>&1 < /dev/null &
+                        nohup java -jar caoimhinspetitions.war >/dev/null 2>&1 </dev/null &
+                        disown
                     """
                 }
             }
