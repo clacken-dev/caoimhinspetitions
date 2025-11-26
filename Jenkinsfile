@@ -6,34 +6,6 @@ pipeline {
         maven 'Maven'
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/clacken-dev/caoimhinspetitions.git'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'mvn clean package'
-            }
-        }
-
-        stage('Archive WAR') {
-            steps {
-                archiveArtifacts artifacts: 'target/*.war', fingerprint: true
-            }
-        }
-    }
-}
-pipeline {
-    agent any
-
-    tools {
-        jdk 'Java17'
-        maven 'Maven'
-    }
-
     environment {
         DEPLOY_DIR = "/opt/deploy"
         WAR_NAME   = "caoimhinspetitions.war"
@@ -42,7 +14,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/clacken-dev/caoimhinspetitions.git'
+                git branch: 'main', url: 'https://github.com/clacken-dev/caoimhinspetitions.git', credentialsId: 'github-pat'
             }
         }
 
