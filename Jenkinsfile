@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        DEPLOY_DIR = "/opt/deploy"
+        DEPLOY_DIR = "/var/lib/jenkins/deploy"
         WAR_NAME   = "caoimhinspetitions.war"
     }
 
@@ -34,7 +34,7 @@ pipeline {
             steps {
                 script {
                     timeout(time: 10, unit: 'MINUTES') {
-                        input message: "Deploy latest WAR to Tomcat (Spring Boot on port 9090)?"
+                        input message: "Deploy latest WAR to Spring Boot on port 9090?"
                     }
                 }
             }
@@ -45,16 +45,15 @@ pipeline {
                 script {
                     sh """
                         # Create deploy directory if first time
-                        sudo mkdir -p $DEPLOY_DIR
-                        sudo chown jenkins:jenkins $DEPLOY_DIR
+                        mkdir -p $DEPLOY_DIR
 
                         # Copy WAR into the deploy directory
                         cp target/*.war $DEPLOY_DIR/$WAR_NAME
 
-                        # Stop any running app on port 9090
+                        # Stop any running app on port 9090 (ignore errors if none)
                         pkill -f $WAR_NAME || true
 
-                        # Start new app under nohup
+                        # Start new app under nohup on port 9090
                         nohup java -jar $DEPLOY_DIR/$WAR_NAME --server.port=9090 > $DEPLOY_DIR/app.log 2>&1 &
                     """
                 }
