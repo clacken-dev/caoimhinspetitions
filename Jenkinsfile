@@ -46,12 +46,9 @@ pipeline {
                         # Copy new WAR to deploy dir
                         cp target/*.war /var/lib/jenkins/deploy/caoimhinspetitions.war
 
-                        # Delete old log
-                        rm -f /var/lib/jenkins/deploy/app.log
-
-                        # Start app in foreground (no nohup)
+                        # Start app fully detached
                         cd /var/lib/jenkins/deploy
-                        nohup java -jar /var/lib/jenkins/deploy/caoimhinspetitions.war
+                        setsid java -jar caoimhinspetitions.war > /dev/null 2>&1 < /dev/null &
                     """
                 }
             }
