@@ -7,46 +7,43 @@ pipeline {
     }
 
     environment {
-        DEPLOY_DIR = "/var/lib/jenkins/deploy"
-        WAR_NAME   = "caoimhinspetitions.war"
-        RUN_SCRIPT = "${DEPLOY_DIR}/run.sh"
+        WAR_NAME = "caoimhinspetitions.war"
+        IMAGE_NAME = "myapp"
+        CONTAINER_NAME = "myappcontainer"
+        DEPLOY_PORT = "9090"  // map container 8080 to host 9090
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/clacken-dev/caoimhinspetitions.git',
-                    credentialsId: 'github-pat'
+                git branch: 'main', url: 'https://github.com/clacken-dev/caoimhinspetitions.git', credentialsId: 'github-pat'
             }
         }
 
-        stage('Build') {
+        stage('Build WAR') {
             steps {
                 sh 'mvn clean package'
-            }
-        }
-
-        stage('Archive WAR') {
-            steps {
                 archiveArtifacts artifacts: 'target/*.war', fingerprint: true
             }
         }
 
-        stage('Approval to Deploy') {
+        stage('Build Docker Image') {
             steps {
-                input message: "Deploy latest WAR to Spring Boot (port 9090)?"
+                script {
+                    // Remove old container if exists
+                    sh "docker rm -f ${CONTAINER_NAME} || true"
+
+                    // Build Docker image with WAR deployed into Tomcat
+                    sh "docker build -f Dockerfile -t ${IMAGE_NAME} ."
+                }
             }
         }
 
-        stage('Deploy') {
+        stage('Run Docker Container') {
             steps {
                 script {
-                    // Copy WAR to deploy dir
-                    sh "cp target/*.war ${DEPLOY_DIR}/${WAR_NAME}"
-
-                    // Run the script to kill old process and launch new one in background
-                    sh "${RUN_SCRIPT}"
+                    // Run container, map container's 8080 -> host 9090, detach mode
+                    sh "docker run --name ${CONTAINER_NAME} -p ${DEPLOY_PORT}:8080 --detach ${IMAGE_NAME}:latest"
                 }
             }
         }
