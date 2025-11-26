@@ -9,12 +9,15 @@ pipeline {
     environment {
         DEPLOY_DIR = "/var/lib/jenkins/deploy"
         WAR_NAME   = "caoimhinspetitions.war"
+        RUN_SCRIPT = "${DEPLOY_DIR}/run.sh"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/clacken-dev/caoimhinspetitions.git', credentialsId: 'github-pat'
+                git branch: 'main',
+                    url: 'https://github.com/clacken-dev/caoimhinspetitions.git',
+                    credentialsId: 'github-pat'
             }
         }
 
@@ -39,20 +42,13 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh """
-                        # Stop any running app
-                        pkill -f caoimhinspetitions.war || true
+                    // Copy WAR to deploy dir
+                    sh "cp target/*.war ${DEPLOY_DIR}/${WAR_NAME}"
 
-                        # Copy new WAR to deploy dir
-                        cp target/*.war /var/lib/jenkins/deploy/caoimhinspetitions.war
-
-                        # Start app fully detached
-                        cd /var/lib/jenkins/deploy
-                        nohup java -jar /var/lib/jenkins/deploy/caoimhinspetitions.war >/dev/null 2>&1 &
-                    """
+                    // Run the script to kill old process and launch new one in background
+                    sh "${RUN_SCRIPT}"
                 }
             }
         }
-
     }
 }
