@@ -51,7 +51,7 @@ pipeline {
 
                         # Start app in foreground (no nohup)
                         cd /var/lib/jenkins/deploy
-                        java -jar caoimhinspetitions.war --server.port=9090
+                        nohup java -jar /var/lib/jenkins/deploy/caoimhinspetitions.war
                     """
                 }
             }
