@@ -32,11 +32,7 @@ pipeline {
 
         stage('Approval to Deploy') {
             steps {
-                script {
-                    timeout(time: 10, unit: 'MINUTES') {
-                        input message: "Deploy latest WAR to Spring Boot on port 9090?"
-                    }
-                }
+                input message: "Deploy latest WAR to Spring Boot (port 9090)?"
             }
         }
 
@@ -44,17 +40,18 @@ pipeline {
             steps {
                 script {
                     sh """
-                        # Create deploy directory if first time
+                        # Create deploy directory if it doesn't exist
                         mkdir -p $DEPLOY_DIR
 
-                        # Copy WAR into the deploy directory
+                        # Copy WAR into deploy directory
                         cp target/*.war $DEPLOY_DIR/$WAR_NAME
 
-                        # Stop any running app on port 9090 (ignore errors if none)
+                        # Stop any running instance of this WAR
                         pkill -f $WAR_NAME || true
 
-                        # Start new app under nohup on port 9090
-                        nohup java -jar $DEPLOY_DIR/$WAR_NAME --server.port=9090 > $DEPLOY_DIR/app.log 2>&1 &
+                        # Start the WAR in the background
+                        cd $DEPLOY_DIR
+                        nohup java -jar $WAR_NAME --server.port=9090 > app.log 2>&1 &
                     """
                 }
             }
