@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Petition</title>
+</head>
+<body>
+<h1>Search for a Petition</h1>
+
+<form id="searchForm">
+    <input type="text" id="query" placeholder="Search by title..." required>
+    <button type="submit">Search</button>
+</form>
+
+<ul id="results"></ul>
+
+<a href="index.html">Back to All Petitions</a>
+
+<script>
+    document.getElementById("searchForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const query = document.getElementById("query").value;
+
+        fetch(`/petitions/search?query=${encodeURIComponent(query)}`)
+            .then(r => r.json())
+            .then(petitions => {
+                const list = document.getElementById("results");
+                list.innerHTML = "";
+
+                petitions.forEach(p => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `<a href="petition.html?id=${p.id}">${p.title}</a>`;
+                    list.appendChild(li);
+                });
+            });
+    });
+</script>
+
+</body>
+</html>

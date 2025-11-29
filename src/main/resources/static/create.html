@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Petition</title>
+</head>
+<body>
+<h1>Create a New Petition</h1>
+
+<form id="createForm">
+    <label>Title:</label><br>
+    <input type="text" id="title" required><br><br>
+
+    <label>Description:</label><br>
+    <textarea id="description" rows="5" required></textarea><br><br>
+
+    <button type="submit">Create Petition</button>
+</form>
+
+<p id="message"></p>
+
+<a href="index.html">Back to All Petitions</a>
+
+<script>
+    document.getElementById('createForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const petition = {
+            title: document.getElementById('title').value,
+            description: document.getElementById('description').value
+        };
+
+        fetch('/petitions/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(petition)
+        })
+        .then(response => {
+            if (response.ok) {
+                document.getElementById('message').innerText = "Petition created successfully!";
+            } else {
+                document.getElementById('message').innerText = "Error creating petition.";
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
