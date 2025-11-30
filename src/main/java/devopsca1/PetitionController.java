@@ -1,7 +1,10 @@
 package devopsca1;
 
 import org.springframework.web.bind.annotation.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/petitions")
@@ -10,41 +13,56 @@ public class PetitionController {
     private final List<Petition> petitions = new ArrayList<>();
 
     public PetitionController() {
-        petitions.add(new Petition(1L, "Save the Park", "Stop construction"));
-        petitions.add(new Petition(2L, "Open a Library", "We need a community library"));
+        // Preload sample petitions
+        petitions.add(new Petition(1L, "Save the Park", "Stop the new construction."));
+        petitions.add(new Petition(2L, "Community Library", "Open a new library in town."));
     }
 
+    // List all petitions
     @GetMapping
-    public List<Petition> getAll() {
+    public List<Petition> list() {
         return petitions;
     }
 
+    // Get petition by ID
     @GetMapping("/{id}")
-    public Petition getById(@PathVariable Long id) {
+    public Petition get(@PathVariable Long id) {
         return petitions.stream()
                 .filter(p -> p.getId().equals(id))
                 .findFirst()
                 .orElse(null);
     }
 
+    // Create a new petition
     @PostMapping("/create")
     public Petition create(@RequestBody Petition petition) {
-        petition.setId(System.currentTimeMillis());
+        if (petition.getId() == null) {
+            petition.setId(System.currentTimeMillis()); // simple unique ID
+        }
         petitions.add(petition);
         return petition;
     }
 
+    // Sign petition with name and email
     @PostMapping("/{id}/sign")
-    public Petition sign(@PathVariable Long id) {
-        Petition p = getById(id);
-        if (p != null) p.sign();
-        return p;
+    public Petition sign(@PathVariable Long id, @RequestBody Petition.Signature signature) {
+        Optional<Petition> optionalPetition = petitions.stream()
+                .filter(p -> p.getId().equals(id))
+                .findFirst();
+
+        if (optionalPetition.isPresent()) {
+            Petition petition = optionalPetition.get();
+            petition.addSignature(signature.getName(), signature.getEmail());
+            return petition;
+        }
+        return null;
     }
 
+    // Search petitions by title
     @GetMapping("/search")
-    public List<Petition> search(@RequestParam String term) {
+    public List<Petition> search(@RequestParam String query) {
         return petitions.stream()
-                .filter(p -> p.getTitle().toLowerCase().contains(term.toLowerCase()))
-                .toList();
+                .filter(p -> p.getTitle().toLowerCase().contains(query.toLowerCase()))
+                .collect(Collectors.toList());
     }
 }

@@ -1,59 +1,82 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Petition</title>
-    <link rel="stylesheet" href="style.css">
+    <title>View Petition</title>
+    <link rel="stylesheet" href="style.css"> <!-- Optional CSS -->
 </head>
 <body>
 <div class="container">
 <h1 id="title"></h1>
 <p id="description"></p>
-<p>Signatures: <span id="signature-count">0</span></p>
 
 <h3>Sign this petition</h3>
 <form id="signForm">
+    <label>Your Name:</label><br>
+    <input type="text" id="name" required><br><br>
+
+    <label>Your Email:</label><br>
+    <input type="email" id="email" required><br><br>
+
     <button type="submit">Sign Petition</button>
 </form>
 
 <p id="message"></p>
 
+<h3>Signatures:</h3>
+<ul id="signature-list"></ul>
+
 <a href="index.html">Back to All Petitions</a>
 
 <script>
+    // Get petition ID from query string
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 
-    const titleEl = document.getElementById('title');
-    const descEl = document.getElementById('description');
-    const countEl = document.getElementById('signature-count');
-    const messageEl = document.getElementById('message');
-
-    // Load petition
+    // Load petition details
     function loadPetition() {
         fetch(`/petitions/${id}`)
             .then(res => res.json())
-            .then(p => {
-                titleEl.innerText = p.title;
-                descEl.innerText = p.description;
-                countEl.innerText = p.signatures;
+            .then(petition => {
+                document.getElementById('title').innerText = petition.title;
+                document.getElementById('description').innerText = petition.description;
+
+                const sigList = document.getElementById("signature-list");
+                sigList.innerHTML = ""; // clear existing list
+
+                petition.signatures.forEach(s => {
+                    const li = document.createElement("li");
+                    li.textContent = `${s.name} (${s.email})`;
+                    sigList.appendChild(li);
+                });
             });
     }
 
     loadPetition();
 
-    // Sign petition
-    document.getElementById('signForm').addEventListener('submit', function(e) {
+    // Handle signing the petition
+    document.getElementById("signForm").addEventListener("submit", function(e) {
         e.preventDefault();
 
-        fetch(`/petitions/${id}/sign`, { method: 'POST' })
-            .then(r => {
-                if (r.ok) {
-                    messageEl.innerText = "Signed successfully!";
-                    loadPetition(); // refresh signature count
-                } else {
-                    messageEl.innerText = "Failed to sign.";
-                }
-            });
+        const signature = {
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value
+        };
+
+        fetch(`/petitions/${id}/sign`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(signature)
+        })
+        .then(res => {
+            if (res.ok) {
+                document.getElementById("message").innerText = "Signed successfully!";
+                document.getElementById("name").value = "";
+                document.getElementById("email").value = "";
+                loadPetition(); // refresh signature list
+            } else {
+                document.getElementById("message").innerText = "Failed to sign.";
+            }
+        });
     });
 </script>
 </div>

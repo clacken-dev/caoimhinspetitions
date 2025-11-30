@@ -27,7 +27,7 @@ ul#petition-list, ul#results, ul#signature-list {
     padding: 0;
 }
 
-ul#petition-list li, ul#results li {
+ul#petition-list li, ul#results li, ul#signature-list li {
     background: #fff;
     border-radius: 8px;
     padding: 15px 20px;
@@ -36,7 +36,7 @@ ul#petition-list li, ul#results li {
     transition: transform 0.2s;
 }
 
-ul#petition-list li:hover, ul#results li:hover {
+ul#petition-list li:hover, ul#results li:hover, ul#signature-list li:hover {
     transform: translateY(-3px);
 }
 
@@ -108,7 +108,23 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Signature count card */
+/* Signature list card */
+#signature-list {
+    margin-top: 10px;
+    padding: 0;
+}
+
+#signature-list li {
+    font-size: 14px;
+    color: #555;
+    background: #fdfdfd;
+    border-left: 4px solid #3498db;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+
 #signature-count {
     font-weight: bold;
     color: #e74c3c;
