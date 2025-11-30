@@ -7,22 +7,14 @@
 
 <h1 id="title"></h1>
 <p id="description"></p>
+<p>Signatures: <span id="signature-count">0</span></p>
 
 <h3>Sign this petition</h3>
 <form id="signForm">
-    <label>Your Name:</label><br>
-    <input type="text" id="name" required><br><br>
-
-    <label>Your Email:</label><br>
-    <input type="email" id="email" required><br><br>
-
     <button type="submit">Sign Petition</button>
 </form>
 
 <p id="message"></p>
-
-<h3>Signatures:</h3>
-<ul id="signature-list"></ul>
 
 <a href="index.html">Back to All Petitions</a>
 
@@ -30,42 +22,37 @@
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 
-    // Load petition
-    fetch(`/petitions/${id}`)
-        .then(res => res.json())
-        .then(petition => {
-            document.getElementById('title').innerText = petition.title;
-            document.getElementById('description').innerText = petition.description;
+    const titleEl = document.getElementById('title');
+    const descEl = document.getElementById('description');
+    const countEl = document.getElementById('signature-count');
+    const messageEl = document.getElementById('message');
 
-            const sigList = document.getElementById("signature-list");
-            petition.signatures.forEach(s => {
-                const li = document.createElement("li");
-                li.textContent = `${s.name} (${s.email})`;
-                sigList.appendChild(li);
+    // Load petition
+    function loadPetition() {
+        fetch(`/petitions/${id}`)
+            .then(res => res.json())
+            .then(p => {
+                titleEl.innerText = p.title;
+                descEl.innerText = p.description;
+                countEl.innerText = p.signatures;
             });
-        });
+    }
+
+    loadPetition();
 
     // Sign petition
-    document.getElementById("signForm").addEventListener("submit", function(e) {
+    document.getElementById('signForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const signature = {
-            name: document.getElementById("name").value,
-            email: document.getElementById("email").value
-        };
-
-        fetch(`/petitions/${id}/sign`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(signature)
-        })
-        .then(r => {
-            if (r.ok) {
-                document.getElementById("message").innerText = "Signed successfully!";
-            } else {
-                document.getElementById("message").innerText = "Failed to sign.";
-            }
-        });
+        fetch(`/petitions/${id}/sign`, { method: 'POST' })
+            .then(r => {
+                if (r.ok) {
+                    messageEl.innerText = "Signed successfully!";
+                    loadPetition(); // refresh signature count
+                } else {
+                    messageEl.innerText = "Failed to sign.";
+                }
+            });
     });
 </script>
 

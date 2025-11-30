@@ -21,7 +21,7 @@
 
         const query = document.getElementById("query").value;
 
-        fetch(`/petitions/search?query=${encodeURIComponent(query)}`)
+        fetch(`/petitions/search?term=${encodeURIComponent(query)}`)
             .then(r => r.json())
             .then(petitions => {
                 const list = document.getElementById("results");

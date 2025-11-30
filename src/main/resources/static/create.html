@@ -4,6 +4,7 @@
     <title>Create Petition</title>
 </head>
 <body>
+
 <h1>Create a New Petition</h1>
 
 <form id="createForm">
@@ -37,6 +38,7 @@
         .then(response => {
             if (response.ok) {
                 document.getElementById('message').innerText = "Petition created successfully!";
+                document.getElementById('createForm').reset();
             } else {
                 document.getElementById('message').innerText = "Error creating petition.";
             }

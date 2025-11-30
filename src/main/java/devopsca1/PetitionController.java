@@ -1,44 +1,50 @@
 package devopsca1;
 
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/petitions")
 public class PetitionController {
 
-    private final PetitionService service;
+    private final List<Petition> petitions = new ArrayList<>();
 
-    public PetitionController(PetitionService service) {
-        this.service = service;
+    public PetitionController() {
+        petitions.add(new Petition(1L, "Save the Park", "Stop construction"));
+        petitions.add(new Petition(2L, "Open a Library", "We need a community library"));
     }
 
-    // List all petitions
     @GetMapping
-    public List<Petition> list() {
-        return service.getAll();
+    public List<Petition> getAll() {
+        return petitions;
     }
 
-    // Get petition by ID
     @GetMapping("/{id}")
-    public Petition get(@PathVariable Long id) {
-        return service.getById(id).orElse(null);
+    public Petition getById(@PathVariable Long id) {
+        return petitions.stream()
+                .filter(p -> p.getId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
 
-    // Sign a petition
+    @PostMapping("/create")
+    public Petition create(@RequestBody Petition petition) {
+        petition.setId(System.currentTimeMillis());
+        petitions.add(petition);
+        return petition;
+    }
+
     @PostMapping("/{id}/sign")
     public Petition sign(@PathVariable Long id) {
-        Petition p = service.getById(id).orElse(null);
+        Petition p = getById(id);
         if (p != null) p.sign();
         return p;
     }
 
-    // Create a new petition
-    @PostMapping("/create")
-    public Petition create(@RequestParam String title, @RequestParam String description) {
-        Petition p = new Petition(System.currentTimeMillis(), title, description);
-        service.add(p);
-        return p;
+    @GetMapping("/search")
+    public List<Petition> search(@RequestParam String term) {
+        return petitions.stream()
+                .filter(p -> p.getTitle().toLowerCase().contains(term.toLowerCase()))
+                .toList();
     }
 }

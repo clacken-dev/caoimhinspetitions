@@ -23,7 +23,8 @@ public class PetitionService {
         return petitions.stream().filter(p -> p.getId().equals(id)).findFirst();
     }
 
-    public void add(Petition petition) {
+    public Petition add(Petition petition) {
         petitions.add(petition);
+        return petition;
     }
 }
