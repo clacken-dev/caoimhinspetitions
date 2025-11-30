@@ -14,8 +14,10 @@ public class PetitionController {
 
     public PetitionController() {
         // Preload sample petitions
-        petitions.add(new Petition(1L, "Save the Park", "Stop the new construction."));
-        petitions.add(new Petition(2L, "Community Library", "Open a new library in town."));
+        petitions.add(new Petition(1L, "Bring back plastic straws", "Paper straws are no good."));
+        petitions.add(new Petition(2L, "Save the turtles", "Save turtles by reducing ocean contamination"));
+        petitions.add(new Petition(3L, "Reduce cycle lanes so traffic can flow", "Open up more car lanes so that traffic can flow freely"));
+        petitions.add(new Petition(4L, "Community Library", "Open a new library in town"));
     }
 
     // List all petitions
