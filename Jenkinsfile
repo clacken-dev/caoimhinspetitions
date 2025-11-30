@@ -10,7 +10,7 @@ pipeline {
         WAR_NAME = "caoimhinspetitions.war"
         IMAGE_NAME = "myapp"
         CONTAINER_NAME = "myappcontainer"
-        DEPLOY_PORT = "9090"  // map container 8080 to host 9090
+        DEPLOY_PORT = "9090"
     }
 
     stages {
@@ -20,9 +20,20 @@ pipeline {
             }
         }
 
-        stage('Build WAR') {
+        stage('Build') {
             steps {
                 sh 'mvn clean package'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Archive WAR') {
+            steps {
                 archiveArtifacts artifacts: 'target/*.war', fingerprint: true
             }
         }
@@ -30,19 +41,16 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Remove old container if exists
                     sh "docker rm -f ${CONTAINER_NAME} || true"
-
-                    // Build Docker image with WAR deployed into Tomcat
                     sh "docker build -f Dockerfile -t ${IMAGE_NAME} ."
                 }
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Deploy') {
             steps {
+                input message: 'Deploy the application?', ok: 'Deploy'
                 script {
-                    // Run container, map container's 8080 -> host 9090, detach mode
                     sh "docker run --name ${CONTAINER_NAME} -p ${DEPLOY_PORT}:8080 --detach ${IMAGE_NAME}:latest"
                 }
             }
